@@ -3058,30 +3058,76 @@ header {
         .meta-tag { display: inline-block; background: rgba(229, 9, 20, 0.15); color: #ff5252; font-size: 11px; padding: 3px 10px; border-radius: 20px; font-weight: 700; text-transform: uppercase; border: 1px solid rgba(229, 9, 20, 0.3); }
         .desc-text { font-size: 13px; color: #aaa; line-height: 1.6; margin: 10px 0 0 0; background: #13151f; padding: 14px; border-radius: 10px; border: 1px solid var(--card-border); }
 
-        /* 📺 LANDSCAPE & ANDROID SMART TV OPTIMIZATION */
+        /* 📺 ANDROID SMART TV & LANDSCAPE LEFT SIDEBAR OPTIMIZATION */
         @media screen and (orientation: landscape) {
-            body { padding-bottom: 85px; }
-            .slider-container { height: 280px; max-width: 820px; margin: 0 auto; border-radius: 16px; }
-            .live-grid-container-4 { grid-template-columns: repeat(6, 1fr) !important; max-width: 920px; margin: 0 auto; }
-            .movie-grid { grid-template-columns: repeat(5, 1fr) !important; max-width: 950px; margin: 0 auto; }
+            body { 
+                padding-bottom: 25px !important; 
+                padding-left: 76px !important; /* 👈 Content left sidebar ke peechay nahi chupega */
+            }
+            
+            .slider-container { height: 290px; max-width: 880px; margin: 0 auto; border-radius: 16px; }
+            .live-grid-container-4 { grid-template-columns: repeat(6, 1fr) !important; max-width: 960px; margin: 0 auto; }
+            .movie-grid { grid-template-columns: repeat(5, 1fr) !important; max-width: 980px; margin: 0 auto; }
             .video-fixed-top, .native-chrome-player-box { max-height: 75vh; }
             
-            /* 📱 SMART TV & LED CENTERED FLOATING NAVIGATION BAR */
+            /* 🎬 NETFLIX STYLE TV LEFT VERTICAL SIDEBAR */
             .bottom-nav-container {
                 position: fixed !important;
-                left: 50% !important;
+                left: 0 !important;
+                top: 0 !important;
+                bottom: 0 !important;
                 right: auto !important;
-                transform: translateX(-50%) !important;
-                width: 92% !important;
-                max-width: 520px !important;
-                bottom: 14px !important;
-                border-radius: 24px !important;
-                margin: 0 auto !important;
-                box-shadow: 0 8px 30px rgba(0, 0, 0, 0.9) !important;
+                width: 68px !important;
+                height: 100vh !important;
+                max-width: unset !important;
+                border-radius: 0 20px 20px 0 !important;
+                transform: none !important;
+                margin: 0 !important;
+                box-shadow: 10px 0 35px rgba(0, 0, 0, 0.95) !important;
+                z-index: 99999 !important;
+                display: flex !important;
+                align-items: center !important;
+                justify-content: flex-start !important;
             }
+
+            /* 🌈 7-Colors Rainbow Vertical Flowing Line (Right Edge) */
+            .bottom-nav-container::before {
+                top: 0 !important;
+                left: auto !important;
+                right: 0 !important;
+                bottom: 0 !important;
+                width: 2.5px !important;
+                height: 100% !important;
+                background: linear-gradient(180deg, #ff0000, #ff7f00, #ffff00, #00ff00, #00b4d8, #4b0082, #ff007f, #ff0000) !important;
+                background-size: 100% 200% !important;
+                animation: flowRainbowVertical 3s linear infinite !important;
+            }
+
             .bottom-nav {
-                border-radius: 22px !important;
+                position: absolute !important;
+                top: 0 !important;
+                left: 0 !important;
+                right: 2.5px !important;
+                bottom: 0 !important;
+                width: calc(100% - 2.5px) !important;
+                height: 100% !important;
+                flex-direction: column !important; /* 👈 Icons ek ke neeche ek (Vertical) aayenge */
+                justify-content: center !important;
+                gap: 16px !important;
+                padding: 16px 0 !important;
+                border-radius: 0 18px 18px 0 !important;
             }
+
+            .nav-item {
+                flex: unset !important;
+                width: 100% !important;
+                padding: 6px 0 !important;
+            }
+        }
+
+        @keyframes flowRainbowVertical {
+            0% { background-position: 50% 0%; }
+            100% { background-position: 50% 200%; }
         }
     </style>
 </head>
@@ -6348,83 +6394,132 @@ const hdr = document.querySelector('header'); if (hdr) hdr.style.display = (id =
             window.open('https://t.me/MovieMasterHelp', '_blank');
         };
 
-        // 🎮 2026 ANDROID SMART TV & REMOTE CONTROL (D-PAD) ENGINE
+        // 🎮 2026 UNIVERSAL ANDROID SMART TV & LED REMOTE ENGINE (ALL TV BOXES COMPATIBLE)
         (function() {
             let focusedEl = null;
 
-            // Screen par mojood interactive elements dhoondna
+            // 📺 1. TV Screen Par Mojood Interactive Elements Dhoondna
             function getNavigables() {
-                // 1. Agar Video Player khula ho toh remote video ko control karega
+                // Agar Video Player khula ho toh remote sirf video ko control karega
                 const vPage = document.getElementById('videoPage');
                 if (vPage && vPage.style.display === 'block') return [];
 
-                // 2. Agar VIP Modal khula ho
+                // Agar VIP Modal khula ho
                 const vipModal = document.getElementById('vipLockModal');
                 if (vipModal && vipModal.style.display === 'flex') {
                     return Array.from(vipModal.querySelectorAll('button, input, .vip-close-link')).filter(el => el.offsetParent !== null);
                 }
 
-                // 3. Normal Browsing (Categories, Slider, Channels, Movies, Bottom Nav)
-                const items = [];
-                document.querySelectorAll('.home-cat-pill').forEach(el => { if (el.offsetParent !== null) items.push(el); });
-                
-                const activeSlide = document.querySelector('.slide.active-slide');
-                if (activeSlide && activeSlide.offsetParent !== null) items.push(activeSlide);
+                const sidebarItems = [];
+                const contentItems = [];
 
+                // Left Sidebar Items
+                document.querySelectorAll('.bottom-nav-container .nav-item').forEach(el => {
+                    if (el.offsetParent !== null) sidebarItems.push(el);
+                });
+
+                // Top Category Pills
+                document.querySelectorAll('.home-cat-pill').forEach(el => {
+                    if (el.offsetParent !== null) contentItems.push(el);
+                });
+
+                // Active Slider
+                const activeSlide = document.querySelector('.slide.active-slide') || document.querySelector('.slider-track');
+                if (activeSlide && activeSlide.offsetParent !== null) contentItems.push(activeSlide);
+
+                // Channels & Movie Cards
                 document.querySelectorAll('.live-item, .card-rect').forEach(el => {
-                    if (el.offsetParent !== null) items.push(el);
+                    if (el.offsetParent !== null) contentItems.push(el);
                 });
 
-                document.querySelectorAll('.nav-item').forEach(el => {
-                    if (el.offsetParent !== null) items.push(el);
-                });
-
-                return items;
+                return [...sidebarItems, ...contentItems];
             }
 
-            // TV Remote Se Focus Set Karna
+            // 🎯 TV Remote Focus Set Karna (Android TV Chrome Focus Active)
             function setTVFocus(el) {
                 if (focusedEl) focusedEl.classList.remove('tv-focused');
                 focusedEl = el;
                 if (focusedEl) {
                     focusedEl.classList.add('tv-focused');
+                    if (!focusedEl.hasAttribute('tabindex')) focusedEl.setAttribute('tabindex', '0');
+                    try { focusedEl.focus({ preventScroll: true }); } catch(e){}
                     focusedEl.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
                 }
             }
 
-            // 🧭 2D Spatial Remote Movement (Up, Down, Left, Right)
+            // 🧭 2D Spatial Remote Movement (Sidebar Bridge Ke Sath)
             function moveTV(dir) {
                 const list = getNavigables();
                 if (!list.length) return;
 
                 if (!focusedEl || !document.body.contains(focusedEl) || focusedEl.offsetParent === null) {
-                    setTVFocus(list[0]);
+                    const def = document.querySelector('.bottom-nav-container .nav-item.active') || list[0];
+                    setTVFocus(def);
                     return;
                 }
 
                 const cur = focusedEl.getBoundingClientRect();
+                const isCurInSidebar = !!focusedEl.closest('.bottom-nav-container');
+
+                // 🌉 Smart Bridge: Left Sidebar se Daayein Content par jana
+                if (isCurInSidebar && dir === 'right') {
+                    const contentList = list.filter(el => !el.closest('.bottom-nav-container'));
+                    if (contentList.length) {
+                        let closest = contentList[0];
+                        let minDiff = Infinity;
+                        contentList.forEach(item => {
+                            const r = item.getBoundingClientRect();
+                            const diff = Math.abs((r.top + r.height/2) - (cur.top + cur.height/2));
+                            if (diff < minDiff) { minDiff = diff; closest = item; }
+                        });
+                        setTVFocus(closest);
+                        return;
+                    }
+                }
+
+                // 🌉 Smart Bridge: Content se Bayein Left Sidebar par aana
+                if (!isCurInSidebar && dir === 'left') {
+                    if (cur.left <= 220) {
+                        const sidebarList = list.filter(el => !!el.closest('.bottom-nav-container'));
+                        if (sidebarList.length) {
+                            let closest = sidebarList[0];
+                            let minDiff = Infinity;
+                            sidebarList.forEach(item => {
+                                const r = item.getBoundingClientRect();
+                                const diff = Math.abs((r.top + r.height/2) - (cur.top + cur.height/2));
+                                if (diff < minDiff) { minDiff = diff; closest = item; }
+                            });
+                            setTVFocus(closest);
+                            return;
+                        }
+                    }
+                }
+
+                // Normal Up, Down, Left, Right Movement
                 let best = null;
                 let minDst = Infinity;
 
                 list.forEach(item => {
                     if (item === focusedEl) return;
-                    const r = item.getBoundingClientRect();
+                    const isItemInSidebar = !!item.closest('.bottom-nav-container');
+                    if (isCurInSidebar && isItemInSidebar && (dir === 'left' || dir === 'right')) return;
 
+                    const r = item.getBoundingClientRect();
                     let valid = false;
                     let dst = Infinity;
 
                     if (dir === 'right' && r.left >= cur.left + 5) {
                         valid = true;
-                        dst = Math.hypot(r.left - cur.right, (r.top + r.height/2) - (cur.top + cur.height/2) * 2.5);
+                        dst = Math.hypot(r.left - cur.right, ((r.top + r.height/2) - (cur.top + cur.height/2)) * 2);
                     } else if (dir === 'left' && r.right <= cur.right - 5) {
                         valid = true;
-                        dst = Math.hypot(cur.left - r.right, (r.top + r.height/2) - (cur.top + cur.height/2) * 2.5);
-                    } else if (dir === 'down' && r.top >= cur.bottom - 12) {
+                        dst = Math.hypot(cur.left - r.right, ((r.top + r.height/2) - (cur.top + cur.height/2)) * 2);
+                    } else if (dir === 'down' && r.top >= cur.bottom - 15) {
                         valid = true;
-                        dst = Math.hypot((r.left + r.width/2) - (cur.left + cur.width/2), (r.top - cur.bottom) * 1.5);
-                    } else if (dir === 'up' && r.bottom <= cur.top + 12) {
+                        dst = Math.hypot(((r.left + r.width/2) - (cur.left + cur.width/2)) * 1.5, r.top - cur.bottom);
+                    } else if (dir === 'up' && r.bottom <= cur.top + 15) {
                         valid = true;
-                        dst = Math.hypot((r.left + r.width/2) - (cur.left + cur.width/2), (cur.top - r.bottom) * 1.5);
+                        dst = Math.hypot(((r.left + r.width/2) - (cur.left + cur.width/2)) * 1.5, cur.top - r.bottom);
                     }
 
                     if (valid && dst < minDst) {
@@ -6436,62 +6531,68 @@ const hdr = document.querySelector('header'); if (hdr) hdr.style.display = (id =
                 if (best) setTVFocus(best);
             }
 
-            // ⌨️ ASLI REMOTE CONTROL (KEYBOARD / D-PAD) LISTENER
+            // ⌨️ ASLI SMART TV REMOTE SIGNALS (CODE 37, 38, 39, 40, 13, 23, 4)
             window.addEventListener('keydown', (e) => {
+                const code = e.keyCode || e.which;
+                const key = e.key || '';
+
                 const vPage = document.getElementById('videoPage');
                 const isVideoOpen = (vPage && vPage.style.display === 'block');
                 const vipModal = document.getElementById('vipLockModal');
                 const isModalOpen = (vipModal && vipModal.style.display === 'flex');
 
-                // 🎬 1. Jab Video Player Chal Raha Ho
+                const isRight = (key === 'ArrowRight' || key === 'Right' || code === 39);
+                const isLeft  = (key === 'ArrowLeft'  || key === 'Left'  || code === 37);
+                const isDown  = (key === 'ArrowDown'  || key === 'Down'  || code === 40);
+                const isUp    = (key === 'ArrowUp'    || key === 'Up'    || code === 38);
+                const isOK    = (key === 'Enter' || key === 'Select' || key === 'Ok' || code === 13 || code === 23);
+                const isBack  = (key === 'Escape' || key === 'Backspace' || key === 'GoBack' || code === 27 || code === 8 || code === 4);
+
+                // 🎬 1. Video Player Chal Raha Ho Toh Remote Controls
                 if (isVideoOpen) {
                     const videoEl = vPage.querySelector('video');
-                    if (e.key === 'ArrowRight') {
-                        // 10s Forward
+                    if (isRight) {
                         if (videoEl) videoEl.currentTime = Math.min((videoEl.duration || 99999), videoEl.currentTime + 10);
                         e.preventDefault();
-                    } else if (e.key === 'ArrowLeft') {
-                        // 10s Rewind
+                    } else if (isLeft) {
                         if (videoEl) videoEl.currentTime = Math.max(0, videoEl.currentTime - 10);
                         e.preventDefault();
-                    } else if (e.key === 'Enter' || e.key === ' ') {
-                        // Play / Pause Toggle
+                    } else if (isOK) {
                         if (videoEl) {
                             if (videoEl.paused) videoEl.play().catch(()=>{}); else videoEl.pause();
                         }
                         e.preventDefault();
-                    } else if (e.key === 'Escape' || e.key === 'Backspace') {
-                        // Video Band Karke Wapas Aana
+                    } else if (isBack) {
                         if (typeof window.closePlayer === 'function') window.closePlayer();
                         e.preventDefault();
                     }
                     return;
                 }
 
-                // 🔒 2. Jab VIP Modal Khula Ho
-                if (isModalOpen && (e.key === 'Escape' || e.key === 'Backspace')) {
+                // 🔒 2. VIP Modal Khula Ho
+                if (isModalOpen && isBack) {
                     vipModal.style.display = 'none';
                     e.preventDefault();
                     return;
                 }
 
-                // 📺 3. Normal Browsing (Remote Arrows & OK)
-                if (e.key === 'ArrowRight') { moveTV('right'); e.preventDefault(); }
-                else if (e.key === 'ArrowLeft') { moveTV('left'); e.preventDefault(); }
-                else if (e.key === 'ArrowDown') { moveTV('down'); e.preventDefault(); }
-                else if (e.key === 'ArrowUp') { moveTV('up'); e.preventDefault(); }
-                else if (e.key === 'Enter') {
+                // 📺 3. Normal TV Browsing
+                if (isRight) { moveTV('right'); e.preventDefault(); }
+                else if (isLeft)  { moveTV('left');  e.preventDefault(); }
+                else if (isDown)  { moveTV('down');  e.preventDefault(); }
+                else if (isUp)    { moveTV('up');    e.preventDefault(); }
+                else if (isOK) {
                     if (focusedEl) {
                         focusedEl.click();
                         e.preventDefault();
                     }
-                } else if (e.key === 'Escape' || e.key === 'Backspace') {
-                    // Back dabane par Home par wapas
+                } else if (isBack) {
                     if (typeof window.backToHome === 'function') window.backToHome();
+                    e.preventDefault();
                 }
             });
 
-            // Touch karne par TV focus saaf ho taake mobile user ko disturb na kare
+            // Touch par TV focus saaf ho taake mobile touch normal rahe
             window.addEventListener('touchstart', () => {
                 if (focusedEl) {
                     focusedEl.classList.remove('tv-focused');
